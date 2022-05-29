@@ -80,12 +80,6 @@ for(var i = 3; i < newItems.length; i++){
 
 export const dataAtom = atom(initialState) // il y a 1 000 000 de données dans cet atome !
 
-type NetworkInfo = {
-  isInternetReachable: boolean | null
-}
-
-export const internetConnectionAtom = atom<NetworkInfo| undefined>(undefined)
-
 const allDataWithParentID = focusAtom(dataAtom, (optic) => optic.prop("data").filter(t => t.parentFolderId === 0))
 
 

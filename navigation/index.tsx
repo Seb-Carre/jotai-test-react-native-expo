@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { useEffect, useRef } from 'react';
 
 import AuthScreen from '../screens/hooks/Auth/AuthScreen';
 import { ColorSchemeName } from 'react-native';
@@ -9,7 +10,10 @@ import ExplorerFolderScreen from '../screens/hooks/Connected/ExplorerFolderScree
 import HomeScreen from '../screens/hooks/Connected/HomeScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 import LostPasswordScreen from '../screens/hooks/Auth/LostPasswordScreen';
+import NetInfo from '../network/NetInfo';
+import { NetInfoState } from '@react-native-community/netinfo';
 import RevealPasswordScreen from '../screens/hooks/Connected/RevealPasswordScreen';
+import { Sync } from '../Synchorization/Sync';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -40,6 +44,20 @@ function AuthNavigator() { //Les screens pour l'auth
 }
 
 function ConnectedNavigator() { // tous les autres screens en tant que connecté
+  
+  const networkInfo = useRef<NetInfoState| null>() // évitons de faire changer le state de toute l'app
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if(state?.isInternetReachable && !networkInfo.current?.isInternetReachable) { 
+        // si la valeur useRef précédente était à false alors on relance une vérification de synchro
+        networkInfo.current = state
+        //Sync()
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Password Manager' }} />
